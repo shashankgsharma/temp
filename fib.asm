@@ -124,4 +124,10 @@ print_integer:
         jnz .convert_digit_loop_negative
 
     ; Calculate the actual position of the last character to print
-    sub r
+    sub rsi, rcx    ; rsi now points to the start of the output
+
+.print_done:
+    ; Print the number
+    mov rdx, 101     ; Set the number of bytes to write (including null terminator)
+    mov rax, 1      ; syscall number 1 for sys_write
+    mov r
