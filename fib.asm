@@ -39,7 +39,7 @@ done:
     ; Store the final Fibonacci number (in rax) into the memory location fib_number
     mov [fib_number], rax
 
-    ; Exit the program
+    ; Print the Fibonacci number
     call print_newline
     mov rsi, result_prompt
     call print_string
@@ -52,14 +52,14 @@ done:
 
 print_string:
     ; Function to print a null-terminated string pointed to by rsi
-    ; Using syscall 4 for sys_write
-    xor rax, rax    ; syscall number 4 for sys_write
+    ; Using syscall 1 for sys_write
+    xor rax, rax    ; syscall number 1 for sys_write
+    mov rdi, 1      ; file descriptor 1 (stdout)
     mov rdx, 0      ; zero out rdx (as length is 0 for null-terminated strings)
     .print_loop:
         lodsb       ; load the next byte from rsi into al and increment rsi
         test al, al ; check if we reached the end of the string (null terminator)
         jz .print_done
-        mov rdi, 1  ; file descriptor 1 (stdout)
         mov rdx, 1  ; number of bytes to write (1 byte for each character)
         syscall
         jmp .print_loop
@@ -122,8 +122,8 @@ print_integer:
 
 print_newline:
     ; Function to print a newline character
-    ; Using syscall 4 for sys_write
-    xor rax, rax    ; syscall number 4 for sys_write
+    ; Using syscall 1 for sys_write
+    xor rax, rax    ; syscall number 1 for sys_write
     mov rdi, 1      ; file descriptor 1 (stdout)
     mov rsi, newline
     mov rdx, 1      ; number of bytes to write (1 byte for the newline character)
