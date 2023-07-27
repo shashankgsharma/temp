@@ -12,28 +12,9 @@ _start:
     ; Move the value of 'n' from the data section to rdi (n)
     mov rdi, qword [n_value]
 
-    ; Check if n is less than 0, if yes, then set the Fibonacci number to 0 and exit
-    cmp rdi, 0
-    jl done
-    mov rax, 0 ; Fibonacci number for n=0
-    mov rbx, 1 ; Fibonacci number for n=1
+    ; Calculate the Fibonacci number for n
+    call fibonacci
 
-fib_loop:
-    cmp rdi, 1 ; Check if n is 1 or more
-    jle done   ; If n<=1, then the Fibonacci number is already in rax
-
-    ; Calculate the next Fibonacci number (rax + rbx) and store it in rax
-    add rax, rbx
-
-    ; Swap values: rax (current) -> rbx (prev_1) -> rdx (prev_2) -> rax (current)
-    mov rdx, rbx
-    mov rbx, rax
-    mov rax, rdx
-
-    dec rdi    ; Decrement n
-    jmp fib_loop ; Repeat the loop to calculate the next Fibonacci number
-
-done:
     ; Store the final Fibonacci number (in rax) into the memory location fib_number
     mov [fib_number], rax
 
@@ -47,6 +28,33 @@ done:
 
     ; Exit the program
     call exit_program
+
+fibonacci:
+    ; Calculate the nth Fibonacci number and return it in rax
+    ; n is passed in rdi
+
+    ; Check if n is less than or equal to 0
+    cmp rdi, 0
+    jle .fib_done
+    mov rax, 0 ; Fibonacci number for n=0
+    mov rbx, 1 ; Fibonacci number for n=1
+
+    .fib_loop:
+        dec rdi    ; Decrement n
+        jz .fib_done ; If n=1, then the Fibonacci number is already in rax
+
+        ; Calculate the next Fibonacci number (rax + rbx) and store it in rax
+        add rax, rbx
+
+        ; Swap values: rax (current) -> rbx (prev_1) -> rdx (prev_2) -> rax (current)
+        mov rdx, rbx
+        mov rbx, rax
+        mov rax, rdx
+
+        jmp .fib_loop ; Repeat the loop to calculate the next Fibonacci number
+
+    .fib_done:
+    ret
 
 print_string:
     ; Function to print a null-terminated string pointed to by rsi
@@ -120,37 +128,4 @@ print_integer:
 
 .print_done:
     ; Print the number
-    mov rdx, 101     ; Set the number of bytes to write (including null terminator)
-    mov rax, 1      ; syscall number 1 for sys_write
-    mov rdi, 1      ; file descriptor 1 (stdout)
-    syscall
-    ret
-
-.print_zero:
-    ; Print "0" for zero
-    mov byte [rsi], '0'
-    inc rsi
-    mov byte [rsi], 0
-    jmp .print_done
-
-print_newline:
-    ; Function to print a newline character
-    ; Using syscall 1 for sys_write
-    mov rax, 1      ; syscall number 1 for sys_write
-    mov rdi, 1      ; file descriptor 1 (stdout)
-    mov rsi, newline
-    mov rdx, 1      ; number of bytes to write (1 byte for the newline character)
-    syscall
-    ret
-
-exit_program:
-    ; Function to exit the program
-    ; Using syscall 60 for sys_exit
-    mov rax, 60     ; syscall number 60 for sys_exit
-    xor edi, edi    ; Exit status 0
-    syscall
-
-section .rodata
-    prompt db "The value of n is: ", 0
-    result_prompt db "The Fibonacci number is: ", 0
-    newline db 10, 
+    mov rdx, 
