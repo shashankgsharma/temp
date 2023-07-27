@@ -130,4 +130,23 @@ print_integer:
     ; Print the number
     mov rdx, 101     ; Set the number of bytes to write (including null terminator)
     mov rax, 1      ; syscall number 1 for sys_write
-    mov r
+    mov rdi, 1      ; file descriptor 1 (stdout)
+    syscall
+    ret
+
+.print_zero:
+    ; Print "0" for zero
+    mov byte [rsi], '0'
+    inc rsi
+    mov byte [rsi], 0
+    jmp .print_done
+
+print_newline:
+    ; Function to print a newline character
+    ; Using syscall 1 for sys_write
+    mov rax, 1      ; syscall number 1 for sys_write
+    mov rdi, 1      ; file descriptor 1 (stdout)
+    mov rsi, newline
+    mov rdx, 1      ; number of bytes to write (1 byte for the newline character)
+    syscall
+   
