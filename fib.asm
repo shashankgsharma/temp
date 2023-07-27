@@ -5,6 +5,9 @@ section .bss
     fib_number resq 1 ; Reserve 8 bytes (64 bits) to store the Fibonacci number
     output_buffer resb 101 ; Reserve 101 bytes for output (100 digits + sign + null terminator)
 
+section .rodata
+    result_prompt db "Fibonacci(", 0 ; Prompt message
+
 section .text
     global _start
 
@@ -24,6 +27,8 @@ _start:
     call print_string
     mov rdi, [fib_number]
     call print_integer
+    mov rsi, close_bracket
+    call print_string
     call print_newline
 
     ; Exit the program
@@ -149,4 +154,16 @@ print_newline:
     mov rsi, newline
     mov rdx, 1      ; number of bytes to write (1 byte for the newline character)
     syscall
-   
+
+    ret
+
+exit_program:
+    ; Function to exit the program
+    ; Using syscall 60 for sys_exit
+    mov rax, 60     ; syscall number 60 for sys_exit
+    xor rdi, rdi    ; Clear rdi (exit code 0)
+    syscall
+
+section .data
+    newline db 10   ; Newline character (LF)
+    close_bracket db ")", 0 ; Closing bracket for prompt message
