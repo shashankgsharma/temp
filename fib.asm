@@ -124,8 +124,4 @@ print_integer:
         jnz .convert_digit_loop_negative
 
     ; Calculate the actual position of the last character to print
-    sub rsi, rcx    ; rsi now points to the start of the output
-
-.print_done:
-    ; Print the number
-    mov rdx, 
+    sub r
