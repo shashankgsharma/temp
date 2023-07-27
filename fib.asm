@@ -102,46 +102,4 @@ print_integer:
 
     .convert_digit_loop:
         dec rsi      ; Move the pointer to the left
-        xor rdx, rdx ; Clear rdx for division
-        div rbx      ; Divide rdi by 10, quotient in rax, remainder in rdx
-        add dl, '0'  ; Convert the remainder (0-9) to ASCII character ('0'-'9')
-        mov [rsi], dl ; Store the ASCII character in the output buffer
-
-        test rax, rax ; Check if quotient is zero
-        jnz .convert_digit_loop ; If not zero, continue converting the next digit
-
-    ; Print the integer
-    mov rdx, rsi    ; Set the pointer to the beginning of the converted integer
-    sub rdx, rsi    ; Calculate the length of the converted integer
-    mov rax, 1      ; syscall number 1 for sys_write
-    mov rdi, 1      ; file descriptor 1 (stdout)
-    syscall
-    ret
-
-print_newline:
-    ; Function to print a newline character
-    ; Using syscall 1 for sys_write
-    mov rax, 1      ; syscall number 1 for sys_write
-    mov rdi, 1      ; file descriptor 1 (stdout)
-    mov rsi, newline
-    mov rdx, 1      ; number of bytes to write (1 byte for the newline character)
-    syscall
-    ret
-
-exit_program:
-    ; Function to exit the program
-    ; Using syscall 60 for sys_exit
-    mov rax, 60     ; syscall number 60 for sys_exit
-    xor edi, edi    ; Exit status 0
-    syscall
-
-section .rodata
-    prompt db "Enter the value of n: ", 0
-    result_prompt db "The Fibonacci number is: ", 0
-    newline db 10, 0
-
-section .bss
-    invalid_args_msg db "Invalid command-line arguments. Please provide a valid integer for n.", 0
-    input_buffer resb 20 ; Reserve 20 bytes for user input
-    output_buffer resb 21 ; Reserve 21 bytes for output (20 digits + null terminator)
-    input
+        xor rdx, rdx
