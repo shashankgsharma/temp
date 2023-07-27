@@ -8,10 +8,13 @@ section .text
     global _start
 
 _start:
-    ; Get the value of n from the user and store it in rdi register
-    mov rsi, prompt
-    call print_string
-    call read_integer
+    ; Check if there is at least one command-line argument (argument count >= 2)
+    cmp rdi, 2
+    jl invalid_args
+
+    ; Get the value of n from the command-line argument and convert it to an integer
+    mov rsi, [rsi + 8] ; Pointer to the first argument (skip the program name)
+    call parse_integer
 
     ; Check if n is less than 0, if yes, then set the Fibonacci number to 0 and exit
     cmp rax, 0
@@ -50,6 +53,31 @@ done:
     ; Exit the program
     call exit_program
 
+invalid_args:
+    ; Print an error message for invalid command-line arguments
+    mov rsi, invalid_args_msg
+    call print_string
+
+    ; Exit the program
+    call exit_program
+
+parse_integer:
+    ; Function to convert a null-terminated string to an integer
+    ; The input string should be in rsi, and the result will be in rax
+    xor rax, rax    ; Clear rax to store the result
+    xor rcx, rcx    ; Clear rcx to use as a counter
+    .convert_loop:
+        movzx rbx, byte [rsi + rcx] ; Load the next byte into rbx
+        cmp rbx, 0   ; Check if we reached the end of the string (null terminator)
+        je .conversion_done
+        sub rbx, '0' ; Convert ASCII character to its integer value
+        imul rax, 10 ; Multiply current result by 10
+        add rax, rbx ; Add the new digit to the result
+        inc rcx      ; Move to the next character
+        jmp .convert_loop
+    .conversion_done:
+        ret
+
 print_string:
     ; Function to print a null-terminated string pointed to by rsi
     ; Using syscall 1 for sys_write
@@ -64,30 +92,6 @@ print_string:
         syscall
         jmp .print_loop
     .print_done:
-        ret
-
-read_integer:
-    ; Function to read an integer from the user and store it in rax
-    ; Using syscall 0 for sys_read
-    xor rax, rax    ; syscall number 0 for sys_read
-    mov rdi, 0      ; file descriptor 0 (stdin)
-    mov rsi, input_buffer
-    mov rdx, input_buffer_size
-    syscall
-
-    ; Convert the string to an integer
-    xor rax, rax    ; Clear rax to store the result
-    xor rcx, rcx    ; Clear rcx to use as a counter
-    .convert_loop:
-        movzx rbx, byte [rsi + rcx] ; Load the next byte into rbx
-        cmp rbx, 0   ; Check if we reached the end of the string (null terminator)
-        je .conversion_done
-        sub rbx, '0' ; Convert ASCII character to its integer value
-        imul rax, 10 ; Multiply current result by 10
-        add rax, rbx ; Add the new digit to the result
-        inc rcx      ; Move to the next character
-        jmp .convert_loop
-    .conversion_done:
         ret
 
 print_integer:
@@ -123,26 +127,4 @@ print_integer:
 print_newline:
     ; Function to print a newline character
     ; Using syscall 1 for sys_write
-    xor rax, rax    ; syscall number 1 for sys_write
-    mov rdi, 1      ; file descriptor 1 (stdout)
-    mov rsi, newline
-    mov rdx, 1      ; number of bytes to write (1 byte for the newline character)
-    syscall
-    ret
-
-exit_program:
-    ; Function to exit the program
-    ; Using syscall 60 for sys_exit
-    xor rax, rax    ; syscall number 60 for sys_exit
-    syscall
-
-section .rodata
-    prompt db "Enter the value of n: ", 0
-    result_prompt db "The Fibonacci number is: ", 0
-    newline db 10, 0
-
-section .bss
-    input_buffer resb 20 ; Reserve 20 bytes for user input
-    output_buffer resb 21 ; Reserve 21 bytes for output (20 digits + null terminator)
-    input_buffer_size equ $ - input_buffer
-    output_buffer_size equ $ - output_buffer
+    xor rax, rax    ; syscall
